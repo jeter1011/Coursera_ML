@@ -5,11 +5,11 @@ import os
 import numpy as np
 
 # Plotting library
-from matplotlib import pyplot
-from mpl_toolkits.mplot3d import Axes3D  # needed to plot 3-D surfaces
+#from matplotlib import pyplot
+#from mpl_toolkits.mplot3d import Axes3D  # needed to plot 3-D surfaces
 
 # library written for this exercise providing additional functions for assignment submission, and others
-import utils
+#import utils
 
 # Read comma separated data
 data = np.loadtxt(os.path.join('Data', 'ex1data1.txt'), delimiter=',')
@@ -96,21 +96,20 @@ def gradientDescent(X, y, theta, alpha, num_iters):
     # make a copy of theta, to avoid changing the original array, since numpy arrays
     # are passed by reference to functions
     theta = theta.copy()
-
+    theta0 = []
+    theta1 = []
     J_history = []  # Use a python list to save cost in every iteration
 
     X_Values = X[:, 1]
-    X_Values = X_Values[:, None]
-    for i in range(4):
+    for i in range(num_iters):
         # ==================== YOUR CODE HERE =================================
-        theta[0] = theta[0] - np.sum(hypothesis(theta, X) - y)
-        theta[1] = theta[1] - np.dot(np.sum(hypothesis(theta, X) - y), X_Values)
-
-        # =====================================================================
-
+        h = hypothesis(theta, X)
+        theta[0] = theta[0] - (alpha/m)*(np.sum(h-y))
+        theta[1] = theta[1] - (alpha/m) * (np.dot((h - y), X[:, 1]))
+        # ===================================================================
         # save the cost J in every iteration
         J_history.append(computeCost(X, y, theta))
-        print(J_history)
+        # print(J_history)
     return theta, J_history
 
 
@@ -121,6 +120,6 @@ theta = np.zeros(2)
 iterations = 1500
 alpha = 0.01
 
-theta, J_history = gradientDescent(X, y, theta, alpha, iterations)
+theta, J_history, theta1 = gradientDescent(X, y, theta, alpha, iterations)
 print('Theta found by gradient descent: {:.4f}, {:.4f}'.format(*theta))
 print('Expected theta values (approximately): [-3.6303, 1.1664]')
