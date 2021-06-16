@@ -62,15 +62,12 @@ def featureNormalize(X):
     mu = np.zeros(X.shape[1])
     sigma = np.zeros(X.shape[1])
     features = len(X[1, :])
-    mean = []
-    sd = []
 
     # =========================== YOUR CODE HERE =====================
     for f in range(features):
         mu[f] = (np.mean(X[:, f]))
         sigma[f] = (np.std(X[:, f]))
-        #X_norm[:, f] = (X - mu[f])/sigma[f]
-    X_norm = (X - mu) / sigma
+        X_norm[:, f] = (X_norm[:, f]-mu[f])/sigma[f]
     # ================================================================
     return X_norm, mu, sigma
 
