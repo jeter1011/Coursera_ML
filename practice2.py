@@ -67,7 +67,7 @@ def featureNormalize(X):
     for f in range(features):
         mu[f] = (np.mean(X[:, f]))
         sigma[f] = (np.std(X[:, f]))
-        X_norm[:, f] = (X_norm[:, f]-mu[f])/sigma[f]
+        X_norm[:, f] = (X_norm[:, f] - mu[f]) / sigma[f]
     # ================================================================
     return X_norm, mu, sigma
 
@@ -78,61 +78,114 @@ X_norm, mu, sigma = featureNormalize(X)
 print('Computed mean:', mu)
 print('Computed standard deviation:', sigma)
 
-
 # ====================== YOUR CODE HERE =======================
 # pyplot.plot(X, y, 'ro', ms=10, mec='k')
 # pyplot.ylabel('Profit in $10,000')
 # pyplot.xlabel('Population of City in 10,000s')
 
+# Add intercept term to X
+X = np.concatenate([np.ones((m, 1)), X_norm], axis=1)
+
+
 def hypothesis(theta, X):
-    return theta[0] + theta[1] * X[:, 1]
+    return np.dot(X, theta)
 
 
-def computeCost(X, y, theta):
-    # initialize some useful values
-    m = y.size  # number of training examples
+def computeCostMulti(X, y, theta):
+    """
+    Compute cost for linear regression with multiple variables.
+    Computes the cost of using theta as the parameter for linear regression to fit the data points in X and y.
 
-    # You need to return the following variables correctly
+    Parameters
+    ----------
+    X : array_like
+        The dataset of shape (m x n+1).
+
+    y : array_like
+        A vector of shape (m, ) for the values at a given data point.
+
+    theta : array_like
+        The linear regression parameters. A vector of shape (n+1, )
+
+    Returns
+    -------
+    J : float
+        The value of the cost function.
+
+    Instructions
+    ------------
+    Compute the cost of a particular choice of theta. You should set J to the cost.
+    """
+    # Initialize some useful values
+    m = y.shape[0]  # number of training examples
+
+    # You need to return the following variable correctly
     J = 0
 
-    J = (1 / (2 * m)) * np.sum((hypothesis(theta, X) - y) ** 2)
-
-    # ====================== YOUR CODE HERE =====================
-
-    # ===========================================================
+    # ======================= YOUR CODE HERE ===========================
+    J = (1 / (2 * m)) * np.sum(np.square(hypothesis(theta, X) - y))
+    # ==================================================================
     return J
 
 
-def gradientDescent(X, y, theta, alpha, num_iters):
+J = computeCostMulti(X, y, theta=np.array([-1, 2, -3]))
+
+
+def gradientDescentMulti(X, y, theta, alpha, num_iters):
+    """
+    Performs gradient descent to learn theta.
+    Updates theta by taking num_iters gradient steps with learning rate alpha.
+
+    Parameters
+    ----------
+    X : array_like
+        The dataset of shape (m x n+1).
+
+    y : array_like
+        A vector of shape (m, ) for the values at a given data point.
+
+    theta : array_like
+        The linear regression parameters. A vector of shape (n+1, )
+
+    alpha : float
+        The learning rate for gradient descent.
+
+    num_iters : int
+        The number of iterations to run gradient descent.
+
+    Returns
+    -------
+    theta : array_like
+        The learned linear regression parameters. A vector of shape (n+1, ).
+
+    J_history : list
+        A python list for the values of the cost function after each iteration.
+
+    Instructions
+    ------------
+    Peform a single gradient step on the parameter vector theta.
+
+    While debugging, it can be useful to print out the values of
+    the cost function (computeCost) and gradient here.
+    """
+    # Initialize some useful values
     m = y.shape[0]  # number of training examples
 
-    # make a copy of theta, to avoid changing the original array, since numpy arrays
-    # are passed by reference to functions
+    # make a copy of theta, which will be updated by gradient descent
     theta = theta.copy()
-    theta0 = []
-    theta1 = []
-    J_history = []  # Use a python list to save cost in every iteration
 
-    X_Values = X[:, 1]
+    J_history = []
+
     for i in range(num_iters):
-        # ==================== YOUR CODE HERE =================================
+
         h = hypothesis(theta, X)
-        theta[0] = theta[0] - (alpha / m) * (np.sum(h - y))
-        theta[1] = theta[1] - (alpha / m) * (np.dot((h - y), X[:, 1]))
-        # ===================================================================
+
+        for j in range(X.shape[1]):
+            theta[j] = theta[j] - (alpha / m) * ((h - y).dot(X[:, j]))
+        # =================================================================
+
         # save the cost J in every iteration
-        J_history.append(computeCost(X, y, theta))
-        # print(J_history)
+        J_history.append(computeCostMulti(X, y, theta))
+        print(computeCostMulti(X, y, theta))
+
     return theta, J_history
-
-
-# initialize fitting parameters
-theta = np.zeros(2)
-
-# some gradient descent settings
-iterations = 1500
-alpha = 0.01
-
-# theta, J_history = gradientDescent(X, y, theta, alpha, iterations)
-# print('Theta found by gradient descent: {:.4f}, {:.4f}'.format(*theta))
-# print('Expected theta values (approximately): [-3.6303, 1.1664]')
